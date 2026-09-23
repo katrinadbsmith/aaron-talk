@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f4ee">
+<title>Aaron's Talk Buttons</title>
+<style>
+  :root { --ink:#222; --bg:#f7f4ee; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    min-height:100vh;
+  }
+  main { max-width:900px; margin:auto; padding:16px 14px 28px; }
+  h1 { margin:4px 0 2px; text-align:center; font-size:clamp(24px,5vw,38px); }
+  .hint { text-align:center; margin:0 0 14px; font-size:clamp(15px,3vw,19px); }
+  .grid {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+  }
+  button {
+    border:3px solid var(--ink); border-radius:22px; min-height:132px;
+    padding:12px 8px; color:var(--ink); font:inherit; font-weight:800;
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,.16);
+    touch-action:manipulation;
+  }
+  button:active, button.speaking { transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,.16); outline:5px solid rgba(0,0,0,.12); }
+  .icon { font-size:clamp(42px,10vw,68px); line-height:1; margin-bottom:8px; }
+  .label { font-size:clamp(22px,5vw,34px); line-height:1.05; }
+  .yes{background:#bfe6a8}.no{background:#ffaaa0}.happy{background:#ffe78d}
+  .sad{background:#acd8f6}.angry{background:#ffc184}.hungry{background:#f8dc77}
+  .thirsty{background:#c8b8ed}.tired{background:#f5b8d3}.scared{background:#d7d7d7}
+  .mama{background:#aee8e5}.thanks{background:#f6c5d7}.more{background:#cde9a9}.finished{background:#d5c7f0}
+  #status { text-align:center; min-height:28px; margin:14px 0 0; font-size:18px; font-weight:700; }
+  @media (min-width:650px) {
+    .grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    button { min-height:155px; }
+  }
+  @media (prefers-reduced-motion:reduce) { button { transition:none; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Aaron's Talk Buttons</h1>
+  <p class="hint">Tap a button to say the word.</p>
+  <section class="grid" aria-label="Communication buttons">
+    <button class="yes" data-say="Yes"><span class="icon">👍</span><span class="label">Yes</span></button>
+    <button class="no" data-say="No"><span class="icon">✋</span><span class="label">No</span></button>
+    <button class="happy" data-say="Happy"><span class="icon">😊</span><span class="label">Happy</span></button>
+    <button class="sad" data-say="Sad"><span class="icon">😢</span><span class="label">Sad</span></button>
+    <button class="angry" data-say="Angry"><span class="icon">😠</span><span class="label">Angry</span></button>
+    <button class="hungry" data-say="Hungry"><span class="icon">🍽️</span><span class="label">Hungry</span></button>
+    <button class="thirsty" data-say="Thirsty"><span class="icon">🥤</span><span class="label">Thirsty</span></button>
+    <button class="tired" data-say="Tired"><span class="icon">😴</span><span class="label">Tired</span></button>
+    <button class="scared" data-say="Scared"><span class="icon">😨</span><span class="label">Scared</span></button>
+    <button class="mama" data-say="Mama"><span class="icon">👩</span><span class="label">Mama</span></button>
+    <button class="thanks" data-say="Thank you"><span class="icon">❤️</span><span class="label">Thank you</span></button>
+    <button class="more" data-say="More"><span class="icon">➕</span><span class="label">More</span></button>
+    <button class="finished" data-say="Finished"><span class="icon">✅</span><span class="label">Finished</span></button>
+  </section>
+  <div id="status" aria-live="polite"></div>
+</main>
+<script>
+(() => {
+  const status = document.getElementById('status');
+  function speak(word, btn) {
+    if (!('speechSynthesis' in window)) {
+      status.textContent = 'Speech is not supported in this browser.';
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(word);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.85;
+    utterance.pitch = 1.0;
+    btn.classList.add('speaking');
+    status.textContent = word;
+    utterance.onend = utterance.onerror = () => btn.classList.remove('speaking');
+    window.speechSynthesis.speak(utterance);
+  }
+  document.querySelectorAll('[data-say]').forEach(btn => {
+    btn.addEventListener('click', () => speak(btn.dataset.say, btn));
+  });
+})();
+</script>
+</body>
+</html>
